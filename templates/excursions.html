@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excursion Management | YottaFlex AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #263445;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .header {
+            background: #142d4e;
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #d6e2f0;
+        }
+
+        .filters {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: end;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        select, button {
+            padding: 11px 14px;
+            border-radius: 6px;
+            border: 1px solid #ccd5df;
+            font-size: 14px;
+        }
+
+        button {
+            background: #1769aa;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #105487;
+        }
+
+        .reset {
+            background: #64748b;
+            text-decoration: none;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .table-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .table-card h2 {
+            margin-bottom: 18px;
+            color: #142d4e;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e7edf3;
+            font-size: 13px;
+        }
+
+        th {
+            background: #edf3f9;
+            color: #263f5b;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .severity {
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .CRITICAL {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .HIGH {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .MEDIUM {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .LOW {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .view-link {
+            color: #1769aa;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .view-link:hover {
+            text-decoration: underline;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .filters {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .filter-group select,
+            .filters button,
+            .reset {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+<div class="container">
+
+    <div class="header">
+        <h1>Excursion Management</h1>
+        <p>Monitor, filter and investigate cold-chain temperature and humidity incidents.</p>
+    </div>
+
+    <form method="GET" action="/excursions" class="filters">
+
+        <div class="filter-group">
+            <label for="severity">Severity</label>
+            <select name="severity" id="severity">
+                <option value="">All Severities</option>
+                {% for item in severities %}
+                    <option value="{{ item }}"
+                        {% if selected_severity == item %}selected{% endif %}>
+                        {{ item }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="excursion_type">Excursion Type</label>
+            <select name="excursion_type" id="excursion_type">
+                <option value="">All Types</option>
+                {% for item in excursion_types %}
+                    <option value="{{ item }}"
+                        {% if selected_type == item %}selected{% endif %}>
+                        {{ item.replace('_', ' ') }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">Apply Filters</button>
+        <a href="/excursions" class="reset">Reset</a>
+
+    </form>
+
+    <div class="table-card">
+
+        <h2>Detected Excursions</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Excursion ID</th>
+                    <th>Shipment ID</th>
+                    <th>Sensor ID</th>
+                    <th>Excursion Type</th>
+                    <th>Severity</th>
+                    <th>Start Time</th>
+                    <th>Duration (Minutes)</th>
+                    <th>Maximum Temperature</th>
+                    <th>Shipment Details</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in excursions %}
+                <tr>
+                    <td>{{ row.excursion_id }}</td>
+                    <td>{{ row.shipment_id }}</td>
+                    <td>{{ row.sensor_id }}</td>
+                    <td>{{ row.excursion_type.replace('_', ' ') }}</td>
+                    <td>
+                        <span class="severity {{ row.severity }}">
+                            {{ row.severity }}
+                        </span>
+                    </td>
+                    <td>{{ row.start_time }}</td>
+                    <td>{{ row.duration_minutes }}</td>
+                    <td>{{ row.maximum_temperature }} °C</td>
+                    <td>
+                        <a class="view-link"
+                           href="/shipment/{{ row.shipment_id }}">
+                            View Shipment
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="empty">
+                        No excursions found for the selected filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

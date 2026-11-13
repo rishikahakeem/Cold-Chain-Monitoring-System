@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="10">
+
+    <title>Live Monitoring | YottaFlex AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #263445;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: auto;
+        }
+
+        .header {
+            background: #142d4e;
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #d6e2f0;
+        }
+
+        .live-label {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 7px 13px;
+            background: #14532d;
+            color: #bbf7d0;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 23px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .card p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card h2 {
+            color: #142d4e;
+            font-size: 28px;
+        }
+
+        .table-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .table-card h2 {
+            color: #142d4e;
+            margin-bottom: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e7edf3;
+            font-size: 13px;
+        }
+
+        th {
+            background: #edf3f9;
+            color: #263f5b;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .NORMAL {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .WARNING {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .CRITICAL {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .INVALID {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #64748b;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 12px;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+<div class="container">
+
+    <div class="header">
+        <h1>Live Cold Chain Monitoring</h1>
+
+        <p>
+            Monitor real-time temperature and humidity readings
+            across shipments and sensors.
+        </p>
+
+        <span class="live-label">● LIVE MONITORING</span>
+    </div>
+
+    <div class="summary">
+
+        <div class="card">
+            <p>Total Sensors</p>
+            <h2>{{ total_sensors }}</h2>
+        </div>
+
+        <div class="card">
+            <p>Normal Readings</p>
+            <h2>{{ normal_count }}</h2>
+        </div>
+
+        <div class="card">
+            <p>Abnormal Readings</p>
+            <h2>{{ abnormal_count }}</h2>
+        </div>
+
+    </div>
+
+    <div class="table-card">
+
+        <h2>Latest Sensor Readings</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Sensor ID</th>
+                    <th>Shipment ID</th>
+                    <th>Product</th>
+                    <th>Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Temperature Status</th>
+                    <th>Humidity Status</th>
+                    <th>Overall Status</th>
+                    <th>Reading Time</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for row in readings %}
+
+                <tr>
+                    <td>{{ row.sensor_id }}</td>
+
+                    <td>{{ row.shipment_id }}</td>
+
+                    <td>{{ row.product_name }}</td>
+
+                    <td>{{ row.temperature }}</td>
+
+                    <td>{{ row.humidity }}</td>
+
+                    <td>
+                        <span class="status {{ row.temperature_status }}">
+                            {{ row.temperature_status }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status {{ row.humidity_status }}">
+                            {{ row.humidity_status }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status {{ row.overall_status }}">
+                            {{ row.overall_status }}
+                        </span>
+                    </td>
+
+                    <td>{{ row.reading_time }}</td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="9" class="empty">
+                        No sensor readings available.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="footer">
+        Page refreshes automatically every 10 seconds.
+    </div>
+
+</div>
+
+</body>
+</html>

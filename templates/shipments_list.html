@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipment Management</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #263445;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #17365d;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #667085;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .summary {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #17365d;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #17365d;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f4f7fb;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #e8f1ff;
+            color: #17365d;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .view-btn {
+            display: inline-block;
+            padding: 7px 12px;
+            background: #17365d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .view-btn:hover {
+            background: #24558a;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="container">
+
+        <h1>Shipment Management</h1>
+        <p class="subtitle">
+            View and manage all registered shipments.
+        </p>
+
+        <div class="card">
+
+            <div class="summary">
+                Total Shipments: {{ shipments|length }}
+            </div>
+
+            <div class="table-wrapper">
+
+                {% if shipments %}
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shipment ID</th>
+                            <th>Product</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Departure Time</th>
+                            <th>Expected Arrival</th>
+                            <th>Actual Arrival</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for shipment in shipments %}
+                        <tr>
+                            <td>{{ shipment.shipment_id }}</td>
+                            <td>{{ shipment.product_name or shipment.product_id or '-' }}</td>
+                            <td>{{ shipment.origin or '-' }}</td>
+                            <td>{{ shipment.destination or '-' }}</td>
+                            <td>{{ shipment.departure_time or '-' }}</td>
+                            <td>{{ shipment.expected_arrival or '-' }}</td>
+                            <td>{{ shipment.actual_arrival or '-' }}</td>
+                            <td>
+                                <span class="status">
+                                    {{ shipment.shipment_status or 'UNKNOWN' }}
+                                </span>
+                            </td>
+                            <td>
+                                <a class="view-btn"
+                                   href="{{ url_for('shipment_details', shipment_id=shipment.shipment_id) }}">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% else %}
+
+                <div class="empty">
+                    No shipment records found.
+                </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipment Details | YottaFlex AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #263449;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            background: #142b4a;
+            color: white;
+            padding: 24px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+        }
+
+        .header a {
+            color: #b9d8ff;
+            text-decoration: none;
+        }
+
+        .section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            color: #173b63;
+            font-size: 19px;
+            margin-bottom: 18px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+        }
+
+        .detail {
+            background: #f5f8fc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail small {
+            display: block;
+            color: #718096;
+            margin-bottom: 7px;
+        }
+
+        .detail strong {
+            overflow-wrap: anywhere;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e8edf3;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #edf3fa;
+            color: #173b63;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .empty {
+            color: #718096;
+            padding: 12px 0;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 14px;
+            }
+
+            .section {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>Shipment Details</h1>
+        <p>YottaFlex AI – Cold Chain Monitoring System</p>
+        <br>
+        <a href="/">← Back to Dashboard</a>
+    </div>
+
+    {% if shipment %}
+
+    <div class="section">
+        <h2>Shipment Information</h2>
+
+        <div class="details-grid">
+            <div class="detail">
+                <small>Shipment ID</small>
+                <strong>{{ shipment.shipment_id }}</strong>
+            </div>
+
+            <div class="detail">
+                <small>Product</small>
+                <strong>{{ shipment.product_name }}</strong>
+            </div>
+
+            <div class="detail">
+                <small>Origin</small>
+                <strong>{{ shipment.origin }}</strong>
+            </div>
+
+            <div class="detail">
+                <small>Destination</small>
+                <strong>{{ shipment.destination }}</strong>
+            </div>
+
+            <div class="detail">
+                <small>Shipment Status</small>
+                <strong class="status">{{ shipment.shipment_status }}</strong>
+            </div>
+
+            <div class="detail">
+                <small>Departure Time</small>
+                <strong>{{ shipment.departure_time }}</strong>
+            </div>
+
+            <div class="detail">
+                <small>Expected Arrival</small>
+                <strong>{{ shipment.expected_arrival }}</strong>
+            </div>
+
+            <div class="detail">
+                <small>Actual Arrival</small>
+                <strong>{{ shipment.actual_arrival or "Not arrived" }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Container and Sensor Information</h2>
+
+        {% if containers %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Container ID</th>
+                    <th>Container Type</th>
+                    <th>Container Status</th>
+                    <th>Sensor ID</th>
+                    <th>Sensor Type</th>
+                    <th>Calibration</th>
+                </tr>
+
+                {% for item in containers %}
+                <tr>
+                    <td>{{ item.container_id }}</td>
+                    <td>{{ item.container_type }}</td>
+                    <td>{{ item.container_status }}</td>
+                    <td>{{ item.sensor_id or "N/A" }}</td>
+                    <td>{{ item.sensor_type or "N/A" }}</td>
+                    <td>{{ item.calibration_status or "N/A" }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <p class="empty">No container information available.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Latest Temperature and Humidity Readings</h2>
+
+        {% if latest_readings %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Sensor ID</th>
+                    <th>Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Reading Time</th>
+                    <th>Data Status</th>
+                </tr>
+
+                {% for reading in latest_readings %}
+                <tr>
+                    <td>{{ reading.sensor_id }}</td>
+                    <td>{{ reading.temperature }}</td>
+                    <td>{{ reading.humidity }}</td>
+                    <td>{{ reading.reading_time }}</td>
+                    <td>{{ reading.data_status }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <p class="empty">No sensor readings available.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Route Stops</h2>
+
+        {% if route_stops %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Stop Number</th>
+                    <th>Location</th>
+                    <th>Arrival Time</th>
+                    <th>Departure Time</th>
+                    <th>Status</th>
+                </tr>
+
+                {% for stop in route_stops %}
+                <tr>
+                    <td>{{ stop.stop_number }}</td>
+                    <td>{{ stop.location }}</td>
+                    <td>{{ stop.arrival_time }}</td>
+                    <td>{{ stop.departure_time }}</td>
+                    <td>{{ stop.stop_status }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <p class="empty">No route stops available.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Excursion History</h2>
+
+        {% if excursions %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Excursion ID</th>
+                    <th>Sensor ID</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Start Time</th>
+                    <th>Duration (min)</th>
+                    <th>Status</th>
+                </tr>
+
+                {% for excursion in excursions %}
+                <tr>
+                    <td>{{ excursion.excursion_id }}</td>
+                    <td>{{ excursion.sensor_id }}</td>
+                    <td>{{ excursion.excursion_type }}</td>
+                    <td>{{ excursion.severity }}</td>
+                    <td>{{ excursion.start_time }}</td>
+                    <td>{{ excursion.duration_minutes }}</td>
+                    <td>{{ excursion.excursion_status }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <p class="empty">No excursions recorded for this shipment.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Corrective Actions</h2>
+
+        {% if corrective_actions %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Action ID</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+
+                {% for action in corrective_actions %}
+                <tr>
+                    <td>{{ action.action_id }}</td>
+                    <td>{{ action.action_description }}</td>
+                    <td>{{ action.assigned_to }}</td>
+                    <td>{{ action.action_status }}</td>
+                    <td>{{ action.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <p class="empty">No corrective actions available.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Chain of Custody Events</h2>
+
+        {% if custody_events %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Event ID</th>
+                    <th>Event Type</th>
+                    <th>Responsible Person</th>
+                    <th>Location</th>
+                    <th>Event Time</th>
+                    <th>Remarks</th>
+                </tr>
+
+                {% for event in custody_events %}
+                <tr>
+                    <td>{{ event.event_id }}</td>
+                    <td>{{ event.event_type }}</td>
+                    <td>{{ event.responsible_person }}</td>
+                    <td>{{ event.event_location }}</td>
+                    <td>{{ event.event_time }}</td>
+                    <td>{{ event.remarks }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <p class="empty">No custody events available.</p>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div class="section">
+        <h2>Shipment not found</h2>
+        <p>Please check the shipment ID and try again.</p>
+    </div>
+    {% endif %}
+
+</div>
+</body>
+</html>

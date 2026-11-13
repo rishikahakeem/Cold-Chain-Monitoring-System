@@ -1,0 +1,11 @@
+case_id,scenario,issue_type,expected_decision,expected_severity,description
+GT-001,NORMAL_CONDITION,NONE,NO_EXCURSION,NONE,Temperature and humidity remain within product limits
+GT-002,BRIEF_HIGH_TEMPERATURE,HIGH_TEMPERATURE,DETECT_EXCURSION,LOW,Temperature briefly exceeds the permitted maximum
+GT-003,PROLONGED_HIGH_TEMPERATURE,HIGH_TEMPERATURE,DETECT_EXCURSION,HIGH,Temperature exceeds the permitted maximum beyond the allowed duration
+GT-004,LOW_TEMPERATURE,LOW_TEMPERATURE,DETECT_EXCURSION,MEDIUM,Temperature falls below the permitted minimum
+GT-005,HIGH_HUMIDITY,HIGH_HUMIDITY,DETECT_EXCURSION,MEDIUM,Humidity exceeds the permitted maximum
+GT-006,SENSOR_DROPOUT,SENSOR_FAILURE,FLAG_MISSING_DATA,MEDIUM,Expected sensor readings are missing for an interval
+GT-007,INVALID_READING,PHYSICALLY_INVALID_READING,FLAG_INVALID_DATA,HIGH,Reading contains a physically invalid measurement
+GT-008,DELIVERY_BEFORE_DEPARTURE,DATE_ORDER_VIOLATION,REJECT_RECORD,HIGH,Shipment arrival occurs before departure
+GT-009,WRONG_PRODUCT_THRESHOLD,THRESHOLD_MISMATCH,FLAG_POLICY_ERROR,HIGH,Threshold policy does not match the shipment product
+GT-010,EXCURSION_DURATION_UNDERCOUNT,DURATION_RECONCILIATION,FLAG_CALCULATION_ERROR,HIGH,Calculated excursion duration is less than the duration supported by source readings

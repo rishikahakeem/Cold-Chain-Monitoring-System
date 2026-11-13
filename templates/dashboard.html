@@ -1,0 +1,870 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cold Chain Monitoring | Analytics Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f6fb;
+            color: #263445;
+        }
+
+        header {
+            background: #102b46;
+            color: white;
+            padding: 22px 35px;
+        }
+
+        header h1 {
+            font-size: 27px;
+        }
+
+        header p {
+            color: #cbd8e5;
+            margin-top: 7px;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: 30px auto;
+            padding: 0 25px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #718096;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 23px;
+            border-radius: 13px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+            border-left: 5px solid #1684c7;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 14px;
+        }
+
+        .card h2 {
+            font-size: 29px;
+            color: #102b46;
+        }
+
+        .card.critical {
+            border-left-color: #dc3545;
+        }
+
+        .card.high {
+            border-left-color: #f39c12;
+        }
+
+        .card.pending {
+            border-left-color: #805ad5;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 13px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #102b46;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #526174;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d5deea;
+            border-radius: 7px;
+            background: white;
+            color: #263445;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-buttons button,
+        .reset-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .apply-btn {
+            background: #1684c7;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #e8edf3;
+            color: #263445;
+        }
+
+        .apply-btn:hover {
+            background: #106b9f;
+        }
+
+        .reset-btn:hover {
+            background: #d5deea;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-bottom: 25px;
+        }
+
+        .chart-box {
+            height: 320px;
+            position: relative;
+        }
+
+        .wide-chart {
+            height: 350px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e8edf3;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f3f6fb;
+            color: #526174;
+        }
+
+        .severity {
+            font-weight: bold;
+        }
+
+        .CRITICAL {
+            color: #dc3545;
+        }
+
+        .HIGH {
+            color: #e67e22;
+        }
+
+        .MEDIUM {
+            color: #d69e2e;
+        }
+
+        .LOW {
+            color: #198754;
+        }
+
+        .PENDING {
+            color: #805ad5;
+            font-weight: bold;
+        }
+
+        .COMPLETED {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #718096;
+        }
+
+        @media(max-width: 850px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 600px) {
+            header {
+                padding: 20px;
+            }
+
+            .container {
+                padding: 0 15px;
+            }
+
+            .section {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- COMMON NAVIGATION BAR -->
+
+{% include 'navbar.html' %}
+<style>
+    .back-button-container {
+        display: none !important;
+    }
+</style>
+
+<header>
+    <h1>Cold Chain Monitoring System</h1>
+    <p>Temperature & Humidity Monitoring Platform</p>
+</header>
+
+<div class="container">
+
+    <!-- WELCOME SECTION -->
+
+    <div class="welcome">
+        <h2>Monitoring & Analytics Dashboard</h2>
+        <p>Monitor shipments, sensor readings, environmental conditions and corrective actions.</p>
+    </div>
+
+
+    <!-- FILTER SECTION -->
+
+    <div class="section">
+
+        <h2>Filter Excursions</h2>
+
+        <form method="GET" action="/" class="filter-form">
+
+            <div class="filter-group">
+                <label for="severity">Severity</label>
+
+                <select name="severity" id="severity">
+                    <option value="">All Severities</option>
+
+                    <option value="CRITICAL" {% if selected_severity == 'CRITICAL' %}selected{% endif %}>
+                        Critical
+                    </option>
+
+                    <option value="HIGH" {% if selected_severity == 'HIGH' %}selected{% endif %}>
+                        High
+                    </option>
+
+                    <option value="MEDIUM" {% if selected_severity == 'MEDIUM' %}selected{% endif %}>
+                        Medium
+                    </option>
+
+                    <option value="LOW" {% if selected_severity == 'LOW' %}selected{% endif %}>
+                        Low
+                    </option>
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label for="excursion_type">Excursion Type</label>
+
+                <select name="excursion_type" id="excursion_type">
+
+                    <option value="">All Types</option>
+
+                    <option value="HIGH_TEMPERATURE" {% if selected_type == 'HIGH_TEMPERATURE' %}selected{% endif %}>
+                        High Temperature
+                    </option>
+
+                    <option value="LOW_TEMPERATURE" {% if selected_type == 'LOW_TEMPERATURE' %}selected{% endif %}>
+                        Low Temperature
+                    </option>
+
+                    <option value="HIGH_HUMIDITY" {% if selected_type == 'HIGH_HUMIDITY' %}selected{% endif %}>
+                        High Humidity
+                    </option>
+
+                    <option value="SENSOR_FAILURE" {% if selected_type == 'SENSOR_FAILURE' %}selected{% endif %}>
+                        Sensor Failure
+                    </option>
+
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label for="start_date">Start Date</label>
+
+                <input
+                    type="date"
+                    name="start_date"
+                    id="start_date"
+                    value="{{ start_date }}">
+            </div>
+
+
+            <div class="filter-group">
+                <label for="end_date">End Date</label>
+
+                <input
+                    type="date"
+                    name="end_date"
+                    id="end_date"
+                    value="{{ end_date }}">
+            </div>
+
+
+            <div class="filter-buttons">
+
+                <button type="submit" class="apply-btn">
+                    Apply Filters
+                </button>
+
+                <a href="/" class="reset-btn">
+                    Reset
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- MAIN STATISTICS -->
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Shipments</h3>
+            <h2>{{ total_shipments }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Containers</h3>
+            <h2>{{ total_containers }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Active Sensors Registered</h3>
+            <h2>{{ total_sensors }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Sensor Readings</h3>
+            <h2>{{ "{:,}".format(total_readings) }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Excursions</h3>
+            <h2>{{ total_excursions }}</h2>
+        </div>
+
+        <div class="card critical">
+            <h3>Critical Incidents</h3>
+            <h2>{{ critical_excursions }}</h2>
+        </div>
+
+        <div class="card high">
+            <h3>High Severity Incidents</h3>
+            <h2>{{ high_excursions }}</h2>
+        </div>
+
+        <div class="card pending">
+            <h3>Pending Corrective Actions</h3>
+            <h2>{{ pending_actions }}</h2>
+        </div>
+
+    </div>
+
+
+    <!-- EXCURSION CHARTS -->
+
+    <div class="chart-grid">
+
+        <div class="section">
+
+            <h2>Excursion Type Distribution</h2>
+
+            <div class="chart-box">
+                <canvas id="excursionChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <div class="section">
+
+            <h2>Incident Severity Distribution</h2>
+
+            <div class="chart-box">
+                <canvas id="severityChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TEMPERATURE AND HUMIDITY CHART -->
+
+    <div class="section">
+
+        <h2>Temperature & Humidity Trends</h2>
+
+        <div class="chart-box wide-chart">
+            <canvas id="environmentChart"></canvas>
+        </div>
+
+    </div>
+
+
+    <!-- RECENT EXCURSIONS -->
+
+    <div class="section">
+
+        <h2>Recent Detected Excursions</h2>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Excursion ID</th>
+                        <th>Shipment ID</th>
+                        <th>Sensor ID</th>
+                        <th>Excursion Type</th>
+                        <th>Severity</th>
+                        <th>Start Time</th>
+                        <th>Duration (Minutes)</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in recent_excursions %}
+
+                    <tr>
+                        <td>{{ item.excursion_id }}</td>
+                        <td>{{ item.shipment_id }}</td>
+                        <td>{{ item.sensor_id }}</td>
+                        <td>{{ item.excursion_type }}</td>
+
+                        <td class="severity {{ item.severity }}">
+                            {{ item.severity }}
+                        </td>
+
+                        <td>{{ item.start_time }}</td>
+                        <td>{{ item.duration_minutes }}</td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="7">
+                            No excursions found for the selected filters.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- CORRECTIVE ACTIONS -->
+
+    <div class="section">
+
+        <h2>Recent Corrective Actions</h2>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Excursion ID</th>
+                        <th>Shipment ID</th>
+                        <th>Action Description</th>
+                        <th>Assigned To</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for action in recent_actions %}
+
+                    <tr>
+                        <td>{{ action.excursion_id }}</td>
+                        <td>{{ action.shipment_id }}</td>
+                        <td>{{ action.action_description }}</td>
+                        <td>{{ action.assigned_to }}</td>
+
+                        <td class="{{ action.action_status }}">
+                            {{ action.action_status }}
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="5">
+                            No corrective actions found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+    Cold Chain Monitoring System | Temperature & Humidity Analytics
+</footer>
+
+
+<!-- CHART DATA FROM FLASK -->
+
+<div
+    id="chart-data"
+    hidden
+
+    data-excursion-labels="{{ excursion_types | map(attribute='excursion_type') | list | tojson | forceescape }}"
+
+    data-excursion-values="{{ excursion_types | map(attribute='total') | list | tojson | forceescape }}"
+
+    data-severity-labels="{{ severity_stats | map(attribute='severity') | list | tojson | forceescape }}"
+
+    data-severity-values="{{ severity_stats | map(attribute='total') | list | tojson | forceescape }}"
+
+    data-date-labels="[{% for item in daily_readings %}{{ item.reading_date.strftime('%Y-%m-%d') | tojson | forceescape }}{% if not loop.last %},{% endif %}{% endfor %}]"
+
+    data-temperature-values="{{ daily_readings | map(attribute='avg_temperature') | list | tojson | forceescape }}"
+
+    data-humidity-values="{{ daily_readings | map(attribute='avg_humidity') | list | tojson | forceescape }}">
+
+</div>
+
+
+<!-- CHART JAVASCRIPT -->
+
+<script>
+
+    // Read chart data from HTML attributes
+
+    const chartElement = document.getElementById("chart-data");
+
+    const excursionLabels = JSON.parse(
+        chartElement.dataset.excursionLabels
+    );
+
+    const excursionValues = JSON.parse(
+        chartElement.dataset.excursionValues
+    );
+
+    const severityLabels = JSON.parse(
+        chartElement.dataset.severityLabels
+    );
+
+    const severityValues = JSON.parse(
+        chartElement.dataset.severityValues
+    );
+
+    const dateLabels = JSON.parse(
+        chartElement.dataset.dateLabels
+    );
+
+    const temperatureValues = JSON.parse(
+        chartElement.dataset.temperatureValues
+    );
+
+    const humidityValues = JSON.parse(
+        chartElement.dataset.humidityValues
+    );
+
+
+    // EXCURSION TYPE CHART
+
+    new Chart(document.getElementById("excursionChart"), {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: excursionLabels,
+
+            datasets: [{
+
+                data: excursionValues,
+
+                backgroundColor: [
+                    "#3182CE",
+                    "#805AD5",
+                    "#DD6B20",
+                    "#E53E3E"
+                ],
+
+                borderWidth: 2
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
+        }
+
+    });
+
+
+    // SEVERITY CHART
+
+    new Chart(document.getElementById("severityChart"), {
+
+        type: "pie",
+
+        data: {
+
+            labels: severityLabels,
+
+            datasets: [{
+
+                data: severityValues,
+
+                backgroundColor: [
+                    "#DC3545",
+                    "#E67E22",
+                    "#D69E2E",
+                    "#198754"
+                ],
+
+                borderWidth: 2
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
+        }
+
+    });
+
+
+    // TEMPERATURE AND HUMIDITY TREND CHART
+
+    new Chart(document.getElementById("environmentChart"), {
+
+        type: "line",
+
+        data: {
+
+            labels: dateLabels,
+
+            datasets: [
+
+                {
+
+                    label: "Average Temperature (°C)",
+
+                    data: temperatureValues,
+
+                    borderColor: "#E87518",
+
+                    backgroundColor: "rgba(232,117,24,0.12)",
+
+                    tension: 0.35,
+
+                    yAxisID: "y"
+
+                },
+
+                {
+
+                    label: "Average Humidity (%)",
+
+                    data: humidityValues,
+
+                    borderColor: "#3182CE",
+
+                    backgroundColor: "rgba(49,130,206,0.12)",
+
+                    tension: 0.35,
+
+                    yAxisID: "y1"
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            interaction: {
+
+                mode: "index",
+
+                intersect: false
+
+            },
+
+            scales: {
+
+                y: {
+
+                    type: "linear",
+
+                    position: "left",
+
+                    title: {
+
+                        display: true,
+
+                        text: "Temperature (°C)"
+
+                    }
+
+                },
+
+                y1: {
+
+                    type: "linear",
+
+                    position: "right",
+
+                    title: {
+
+                        display: true,
+
+                        text: "Humidity (%)"
+
+                    },
+
+                    grid: {
+
+                        drawOnChartArea: false
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

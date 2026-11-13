@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrective Actions Report</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #263445;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #1e3a5f;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 7px;
+            text-decoration: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .csv-btn {
+            background: #198754;
+        }
+
+        .pdf-btn {
+            background: #2563eb;
+        }
+
+        .back-btn {
+            background: #64748b;
+        }
+
+        .summary {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        .summary h2 {
+            margin: 0 0 10px;
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .count {
+            font-size: 34px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .table-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .table-card h2 {
+            margin-top: 0;
+            color: #1e3a5f;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e5eaf0;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #edf3fa;
+            color: #334155;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .actions {
+                display: none;
+            }
+
+            .summary, .table-card {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div>
+            <h1>Corrective Actions Report</h1>
+            <p class="subtitle">
+                Overview of corrective actions generated from detected excursions.
+            </p>
+        </div>
+
+        <div class="actions">
+            <a href="/reports" class="btn back-btn">
+                Back to Reports
+            </a>
+
+            <a href="/export/corrective-actions" class="btn csv-btn">
+                Export CSV
+            </a>
+
+            <button onclick="window.print()" class="btn pdf-btn">
+                Download PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="summary">
+        <h2>Total Corrective Actions</h2>
+        <div class="count">{{ actions|length }}</div>
+    </div>
+
+    <div class="table-card">
+
+        <h2>Corrective Actions Details</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Action ID</th>
+                    <th>Excursion ID</th>
+                    <th>Action Description</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Completed At</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for action in actions %}
+
+                <tr>
+                    <td>{{ action.action_id }}</td>
+
+                    <td>{{ action.excursion_id }}</td>
+
+                    <td>{{ action.action_description }}</td>
+
+                    <td>
+                        {{ action.assigned_to or 'Not Assigned' }}
+                    </td>
+
+                    <td>
+                        {% if action.action_status == 'COMPLETED' %}
+                            <span class="status completed">
+                                COMPLETED
+                            </span>
+                        {% elif action.action_status == 'PENDING' %}
+                            <span class="status pending">
+                                PENDING
+                            </span>
+                        {% else %}
+                            <span class="status pending">
+                                {{ action.action_status or 'NOT SET' }}
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ action.created_at or '-' }}</td>
+
+                    <td>{{ action.completed_at or '-' }}</td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="7" class="empty">
+                        No corrective actions found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

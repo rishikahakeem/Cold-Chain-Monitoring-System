@@ -1,0 +1,134 @@
+
+<nav class="main-navbar">
+    <div class="nav-brand">
+        <span class="brand-icon">❄</span>
+        <span>Cold Chain Monitor</span>
+    </div>
+
+    <div class="nav-links">
+
+        <!-- Home page: accessible to everyone -->
+        <a href="/" class="nav-link">Home</a>
+
+        <!-- Dashboard: requires login -->
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+
+        <a href="/shipments" class="nav-link">Shipment Management</a>
+
+        <a href="/excursions" class="nav-link">Excursion Management</a>
+
+        <a href="/live-monitoring" class="nav-link">Live Monitoring</a>
+
+        <a href="/alerts" class="nav-link">Alerts</a>
+
+        <a href="/corrective-actions" class="nav-link">Corrective Actions</a>
+
+        <a href="/reports" class="nav-link">Reports</a>
+
+        <a href="/logout" class="logout-link">Logout</a>
+
+    </div>
+</nav>
+
+<div class="back-button-container">
+    <button type="button" class="back-button" onclick="goBack()">
+        &#8592; Back
+    </button>
+</div>
+
+<script>
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = "/dashboard";
+        }
+    }
+</script>
+
+<style>
+    .main-navbar {
+        background: #142d4e;
+        color: white;
+        padding: 16px 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        border-radius: 10px;
+        margin-bottom: 15px;
+    }
+
+    .nav-brand {
+        font-size: 22px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .brand-icon {
+        color: #60c5f1;
+        margin-right: 7px;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .nav-link,
+    .logout-link {
+        color: white;
+        text-decoration: none;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        transition: 0.2s;
+    }
+
+    .nav-link:hover {
+        background: #285078;
+        color: white;
+    }
+
+    .logout-link {
+        background: #dc4545;
+    }
+
+    .logout-link:hover {
+        background: #b92d2d;
+        color: white;
+    }
+
+    .back-button-container {
+        margin: 0 0 20px 0;
+    }
+
+    .back-button {
+        background: #142d4e;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .back-button:hover {
+        background: #285078;
+    }
+
+    @media (max-width: 900px) {
+        .main-navbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .nav-links {
+            width: 100%;
+        }
+    }
+</style>

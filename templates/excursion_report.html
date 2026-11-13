@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excursion Report</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #263445;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        h1 { color: #17365d; }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e5eaf0;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #17365d;
+            color: white;
+        }
+
+       
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .csv { background: #16834a; }
+        .pdf { background: #17365d; }
+
+        .severity { font-weight: bold; }
+        .critical { color: #dc2626; }
+        .high { color: #ea580c; }
+        .medium { color: #ca8a04; }
+        .low { color: #16a34a; }
+
+        @media print {
+            .back, .actions, nav, .main-navbar {
+                display: none !important;
+            }
+
+            .container {
+                margin: 0;
+                max-width: none;
+            }
+
+            .card { box-shadow: none; }
+
+            th {
+                background: #ddd !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="container">
+
+        
+
+        <h1>Excursion Report</h1>
+
+        <div class="actions">
+            <a href="/export/excursions" class="btn csv">
+                Download CSV
+            </a>
+
+            <button onclick="window.print()" class="btn pdf">
+                Save as PDF
+            </button>
+        </div>
+
+        <div class="card">
+
+            <p>
+                Total Excursions:
+                <strong>{{ excursions|length }}</strong>
+            </p>
+
+            {% if excursions %}
+
+            <table>
+                <thead>
+                    <tr>
+                        {% for column in excursions[0].keys() %}
+                        <th>{{ column.replace('_', ' ').title() }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for excursion in excursions %}
+                    <tr>
+                        {% for key, value in excursion.items() %}
+                        <td>
+                            {% if key == 'severity' %}
+                                <span class="severity {{ value|lower }}">
+                                    {{ value }}
+                                </span>
+                            {% else %}
+                                {{ value if value is not none else '-' }}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+
+            <p>No excursion records found.</p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+</html>
